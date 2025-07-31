@@ -43,7 +43,7 @@ func GenerateSignedURL(w http.ResponseWriter, r *http.Request) {
 
 	url, err := storage.SignedURL(bucketName, objectName, &storage.SignedURLOptions{
 		Method:         "GET",
-		Expires:        time.Now().Add(15 * time.Minute),
+		Expires:        time.Now().AddDate(0, 4, 0), //4 months
 		GoogleAccessID: googleAccessID,
 		PrivateKey:     privateKey,
 	})
