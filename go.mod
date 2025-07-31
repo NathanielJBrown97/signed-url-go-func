@@ -1,4 +1,4 @@
-module signedurl
+module github.com/NathanielJBrown97/signed-url-go-func
 
 go 1.23.0
 
