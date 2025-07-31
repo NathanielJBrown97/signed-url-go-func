@@ -1,8 +1,10 @@
 package signedurl
 
 import (
-	"context"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -10,30 +12,44 @@ import (
 	"cloud.google.com/go/storage"
 )
 
-var (
-	bucketName = "homework-assignments"
-)
-
-// Cloud Function entry point
 func GenerateSignedURL(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-	file := r.URL.Query().Get("file")
-
-	if file == "" {
+	bucketName := "homework-assignments"
+	objectName := r.URL.Query().Get("file")
+	if objectName == "" {
 		http.Error(w, "Missing 'file' query parameter", http.StatusBadRequest)
 		return
 	}
 
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		http.Error(w, "Failed to create storage client: "+err.Error(), http.StatusInternalServerError)
+	keyJSONBase64 := os.Getenv("GCS_SA_KEY_JSON_BASE64")
+	if keyJSONBase64 == "" {
+		http.Error(w, "Missing GCS_SA_KEY_JSON_BASE64 environment variable", http.StatusInternalServerError)
+		log.Println("GCS_SA_KEY_JSON_BASE64 is empty")
 		return
 	}
-	defer client.Close()
 
-	url, err := generateV4GetObjectSignedURL(ctx, client, bucketName, file)
+	keyJSONBytes, err := base64.StdEncoding.DecodeString(keyJSONBase64)
 	if err != nil {
-		http.Error(w, "Error generating signed URL: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to decode service account key", http.StatusInternalServerError)
+		log.Printf("Base64 decode error: %v", err)
+		return
+	}
+
+	privateKey, googleAccessID, err := extractCredentials(keyJSONBytes)
+	if err != nil {
+		http.Error(w, "Failed to extract credentials", http.StatusInternalServerError)
+		log.Printf("Credential extraction error: %v", err)
+		return
+	}
+
+	url, err := storage.SignedURL(bucketName, objectName, &storage.SignedURLOptions{
+		Method:         "GET",
+		Expires:        time.Now().Add(15 * time.Minute),
+		GoogleAccessID: googleAccessID,
+		PrivateKey:     privateKey,
+	})
+	if err != nil {
+		http.Error(w, "Error generating signed URL", http.StatusInternalServerError)
+		log.Printf("Error generating signed URL: %v", err)
 		return
 	}
 
@@ -41,14 +57,13 @@ func GenerateSignedURL(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"url": url})
 }
 
-func generateV4GetObjectSignedURL(ctx context.Context, client *storage.Client, bucket, object string) (string, error) {
-	opts := &storage.SignedURLOptions{
-		Scheme:         storage.SigningSchemeV4,
-		Method:         "GET",
-		Expires:        time.Now().Add(24 * time.Hour),
-		GoogleAccessID: os.Getenv("GOOGLE_SERVICE_ACCOUNT_EMAIL"),
-		PrivateKey:     []byte(os.Getenv("GOOGLE_SERVICE_ACCOUNT_KEY")),
+func extractCredentials(jsonBytes []byte) ([]byte, string, error) {
+	var sa struct {
+		PrivateKey  string `json:"private_key"`
+		ClientEmail string `json:"client_email"`
 	}
-
-	return storage.SignedURL(bucket, object, opts)
+	if err := json.Unmarshal(jsonBytes, &sa); err != nil {
+		return nil, "", fmt.Errorf("failed to parse key JSON: %w", err)
+	}
+	return []byte(sa.PrivateKey), sa.ClientEmail, nil
 }
