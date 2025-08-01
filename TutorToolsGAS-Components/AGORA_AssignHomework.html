@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link 
+      rel="stylesheet" 
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
+      crossorigin="anonymous"
+    >
+    <base target="_top">
+  </head>
+  <body>
+    <label for="hwType">Homework Type: </label>
+    <div class="form-check">
+      <input 
+        class="form-check-input" 
+        type="radio" 
+        onclick="customizeHW('ACT')" 
+        name="flexRadioDefault" 
+        id="ACTradio" 
+        checked
+      />
+      <label class="form-check-label" for="ACTradio">ACT</label>
+    </div>
+    <div class="form-check">
+      <input 
+        class="form-check-input" 
+        type="radio" 
+        onclick="customizeHW('SAT')" 
+        name="flexRadioDefault" 
+        id="SATradio"
+      />
+      <label class="form-check-label" for="SATradio">SAT</label>
+    </div>
+    <div class="form-check">
+      <input 
+        class="form-check-input" 
+        type="radio" 
+        onclick="customizeHW('DSAT')" 
+        name="flexRadioDefault" 
+        id="DSATradio"
+      />
+      <label class="form-check-label" for="DSATradio">DSAT</label>
+    </div>
+    <div class="form-check">
+      <input 
+        class="form-check-input" 
+        type="radio" 
+        onclick="customizeHW('DSATquiz')" 
+        name="flexRadioDefault" 
+        id="DSATquizradio"
+      />
+      <label class="form-check-label" for="DSATquizradio">DSAT Quiz</label>
+    </div>
+    <br>
+
+    <!-- ACT homework info -->
+    <div style="display:block" id="actText">
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="ACTenglish" checked>
+        <label class="form-check-label" for="ACTenglish">English</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="ACTmath">
+        <label class="form-check-label" for="ACTmath">Math</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="ACTreading">
+        <label class="form-check-label" for="ACTreading">Reading</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="ACTscience">
+        <label class="form-check-label" for="ACTscience">Science</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="ACTpt">
+        <label class="form-check-label" for="ACTpt">Practice Test (no touchy)</label>
+      </div>
+
+      <div class="actDropdown">
+        <label for="ACTtest">Choose Test:</label><br>
+        <select id="ACTtest">
+          <option value="F07">F07</option>
+          <option value="B05">B05</option>
+          <option value="E26">E26</option>
+          <option value="E25">E25</option>
+          <option value="G01">G01</option>
+          <option value="67c">67c</option>
+          <option value="D03">D03</option>
+          <option value="E23">E23</option>
+          <option value="F11">F11</option>
+          <option value="F12">F12</option>
+          <option value="G19">G19</option>
+          <option value="16mc1">16mc1</option>
+          <option value="65d">65d</option>
+          <option value="64e">64e</option>
+          <option value="61c">61c</option>
+          <option value="59f">59f</option>
+          <option value="63e">63e</option>
+          <option value="16mc2">16mc2</option>
+          <option value="16mc3">16mc3</option>
+          <option value="1mc">1mc</option>
+          <option value="C03">C03</option>
+          <option value="D06">D06</option>
+          <option value="2176">2176</option>
+          <option value="H31">H31</option>
+        </select>
+      </div>
+
+      <div id="actFor" style="display:block">
+        <label for="actFor">Who For?</label><br>
+        <select id="actForSelect">
+          <option value="">No Note</option>
+          <option value="For Edward">For Edward</option>
+          <option value="For Eli">For Eli</option>
+          <option value="For Ben">For Ben</option>
+          <option value="For Kyra">For Kyra</option>
+          <option value="For Kieran">For Kieran</option>
+          <option value="For Patrick">For Patrick</option>
+        </select>
+      </div>
+
+      <div id="actTextButton">
+        <label for="ACTwork">Problems/Passages:</label><br>
+        <input type="text" id="ACTwork" /><br>
+
+        <label for="ACTtimed">Timed?</label>
+        <input type="checkbox" id="ACTtimed" /><br>
+
+        <label for="ACTnotes">Notes?</label>
+        <input type="checkbox" id="ACTnotes" checked /><br>
+
+        <label for="ACTdate">Due Date:</label><br>
+        <input type="date" id="ACTdate" /><br>
+        <input type="button" onclick="submitAGORAACT()" value="Submit" />
+      </div>
+    </div>
+
+    <!-- SAT homework info -->
+    <div style="display:none" id="satText">
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="SATreading" checked>
+        <label class="form-check-label" for="SATreading">Reading</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="SATwriting">
+        <label class="form-check-label" for="SATwriting">Writing and Language</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="SATnocalc">
+        <label class="form-check-label" for="SATnocalc">No Calc</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="SATcalc">
+        <label class="form-check-label" for="SATcalc">Calculator</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="SATmath">
+        <label class="form-check-label" for="SATmath">Math</label>
+      </div>
+
+      <div id="satDropdown">
+        <label for="SATtest">Choose Test:</label><br>
+        <select id="SATtest">
+          <option value="sat1">sat1</option>
+          <option value="sat2">sat2</option>
+          <option value="sat3">sat3</option>
+          <option value="sat4">sat4</option>
+          <option value="sat5">sat5</option>
+          <option value="sat6">sat6</option>
+          <option value="sat7">sat7</option>
+          <option value="sat8">sat8</option>
+          <option value="sat418">sat418</option>
+          <option value="sat419">sat419</option>
+          <option value="sat320">sat320</option>
+          <option value="sat1020">sat1020</option>
+          <option value="psat1">psat1</option>
+          <option value="psat2">psat2</option>
+        </select>
+      </div>
+
+      <div id="satFor" style="display:block">
+        <label for="satFor">Who For?</label><br>
+        <select id="satForSelect">
+          <option value="">No Note</option>
+          <option value="For Edward">For Edward</option>
+          <option value="For Eli">For Eli</option>
+          <option value="For Ben">For Ben</option>
+          <option value="For Kyra">For Kyra</option>
+          <option value="For Kieran">For Kieran</option>
+          <option value="For Patrick">For Patrick</option>
+        </select>
+      </div>
+
+      <div id="satTextButton">
+        <label for="SATwork">Problems/Passages:</label><br>
+        <input type="text" id="SATwork" /><br>
+
+        <label for="SATtimed">Timed?</label>
+        <input type="checkbox" id="SATtimed" /><br>
+
+        <label for="SATnotes">Notes?</label>
+        <input type="checkbox" id="SATnotes" checked /><br>
+
+        <label for="SATdate">Due Date:</label><br>
+        <input type="date" id="SATdate" /><br>
+        <input type="button" onclick="submitAGORASAT()" value="Submit" />
+      </div>
+    </div>
+
+    <!-- DSAT homework info -->
+    <div style="display:none" id="dsatText">
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="DSATreading1" checked>
+        <label class="form-check-label" for="DSATreading1">Reading 1</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="DSATreading2">
+        <label class="form-check-label" for="DSATreading2">Reading 2</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="DSATmath1">
+        <label class="form-check-label" for="DSATmath1">Math 1</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="sectionData" id="DSATmath2">
+        <label class="form-check-label" for="DSATmath2">Math 2</label>
+      </div>
+
+      <div id="dsatDropdown">
+        <label for="DSATtest">Choose Test:</label><br>
+        <select id="DSATtest">
+          <option value="dsat1">dsat1</option>
+          <option value="dsat2">dsat2</option>
+          <option value="dsat3">dsat3</option>
+          <option value="dsat4">dsat4</option>
+          <option value="dsat5">dsat5</option>
+          <option value="dsat6">dsat6</option>
+          <option value="dsat7">dsat7</option>
+          <option value="dsat8">dsat8</option>
+          <option value="dsat9">dsat9</option>
+          <option value="dsat10">dsat10</option>
+        </select>
+      </div>
+
+      <div id="dsatFor" style="display:block">
+        <label for="dsatFor">Who For?</label><br>
+        <select id="dsatForSelect">
+          <option value="">No Note</option>
+          <option value="For Edward">For Edward</option>
+          <option value="For Eli">For Eli</option>
+          <option value="For Ben">For Ben</option>
+          <option value="For Kyra">For Kyra</option>
+          <option value="For Kieran">For Kieran</option>
+          <option value="For Patrick">For Patrick</option>
+        </select>
+      </div>
+
+      <div id="dsatTextButton">
+        <label for="DSATwork">Problems:</label><br>
+        <input type="text" id="DSATwork" /><br>
+
+        <label for="DSATtimed">Timed?</label>
+        <input type="checkbox" id="DSATtimed" /><br>
+
+        <label for="DSATnotes">Notes?</label>
+        <input type="checkbox" id="DSATnotes" checked /><br>
+
+        <label for="DSATdate">Due Date:</label><br>
+        <input type="date" id="DSATdate" /><br>
+        <input type="button" onclick="submitAGORADSAT()" value="Submit" />
+      </div>
+    </div>
+
+    <!-- DSAT Quiz info -->
+    <div style="display:none" id="dsatQuizText">
+      <div class="form-check">
+        <input 
+          class="form-check-input" 
+          type="radio" 
+          onclick="customizeDSATquiz('Reading')" 
+          name="sectionData" 
+          id="DSATquizReading" 
+          checked
+        />
+        <label class="form-check-label" for="DSATquizReading">Reading</label>
+      </div>
+      <div class="form-check">
+        <input 
+          class="form-check-input" 
+          type="radio" 
+          onclick="customizeDSATquiz('Math')" 
+          name="sectionData" 
+          id="DSATquizMath"
+        />
+        <label class="form-check-label" for="DSATquizMath">Math</label>
+      </div>
+
+      <!-- DSAT Math Quiz options -->
+      <div id="dsatQuizMathDropdown" style="display:none">
+        <label for="DSATmathQuizzes">Choose Quiz:</label><br>
+        <select id="DSATmathQuizzes">
+            <option value="dSAT_Nonlinear Functions_2a">dSAT_Nonlinear Functions_2a</option>
+            <option value="dSAT_Nonlinear equations_123a">dSAT_Nonlinear equations_123a</option>
+            <option value="dSAT_Models and Scatterplots_2a">dSAT_Models and Scatterplots_2a</option>
+            <option value="dSAT_Nonlinear equations in one or two variables_3a">dSAT_Nonlinear equations in one or two variables_3a</option>
+            <option value="dSAT_Nonlinear equations in one or two variables_2a">dSAT_Nonlinear equations in one or two variables_2a</option>
+            <option value="dSAT_Nonlinear equations in one or two variables_2b">dSAT_Nonlinear equations in one or two variables_2b</option>
+            <option value="dSAT_Nonlinear equations in one or two variables_1a">dSAT_Nonlinear equations in one or two variables_1a</option>
+            <option value="dSAT_Nonlinear equations in one or two variables_3b">dSAT_Nonlinear equations in one or two variables_3b</option>
+            <option value="dSAT_Models and Scatterplots_3a">dSAT_Models and Scatterplots_3a</option>
+            <option value="dSAT_Nonlinear Functions_1b">dSAT_Nonlinear Functions_1b</option>
+            <option value="dSAT_Nonlinear Functions_1a">dSAT_Nonlinear Functions_1a</option>
+            <option value="dSAT_Nonlinear Functions_3a">dSAT_Nonlinear Functions_3a</option>
+            <option value="dSAT_Nonlinear Functions_3c">dSAT_Nonlinear Functions_3c</option>
+            <option value="dSAT_Nonlinear Functions_3b">dSAT_Nonlinear Functions_3b</option>
+            <option value="dSAT_Nonlinear Functions_2c">dSAT_Nonlinear Functions_2c</option>
+            <option value="dSAT_Nonlinear Functions_2b">dSAT_Nonlinear Functions_2b</option>
+            <option value="dSAT_Percentages_1a">dSAT_Percentages_1a</option>
+            <option value="dSAT_Percentages_2a">dSAT_Percentages_2a</option>
+            <option value="dSAT_Percentages_1b">dSAT_Percentages_1b</option>
+            <option value="dSAT_Percentages_3a">dSAT_Percentages_3a</option>
+            <option value="dSAT_Observations and Experiments_123a">dSAT_Observations and Experiments_123a</option>
+            <option value="dSAT_Ratios rates proportions units_1a">dSAT_Ratios rates proportions units_1a</option>
+            <option value="dSAT_Probability_3a">dSAT_Probability_3a</option>
+            <option value="dSAT_Probability_2a">dSAT_Probability_2a</option>
+            <option value="dSAT_Ratios rates proportions units_1b">dSAT_Ratios rates proportions units_1b</option>
+            <option value="dSAT_Probability_1a">dSAT_Probability_1a</option>
+            <option value="dSAT_Right triangles and trig_3a">dSAT_Right triangles and trig_3a</option>
+            <option value="dSAT_Ratios rates proportions units_3a">dSAT_Ratios rates proportions units_3a</option>
+            <option value="dSAT_Right triangles and trig_1+2a">dSAT_Right triangles and trig_1+2a</option>
+            <option value="dSAT_Ratios rates proportions units_2b">dSAT_Ratios rates proportions units_2b</option>
+            <option value="dSAT_Ratios rates proportions units_2a">dSAT_Ratios rates proportions units_2a</option>
+            <option value="dSAT_Systems of Linear Equations_1b">dSAT_Systems of Linear Equations_1b</option>
+            <option value="dSAT_Systems of Linear Equations_1a">dSAT_Systems of Linear Equations_1a</option>
+            <option value="dSAT_Systems of Linear Equations_2a">dSAT_Systems of Linear Equations_2a</option>
+            <option value="dSAT_Sample stats and margin of error_3a">dSAT_Sample stats and margin of error_3a</option>
+            <option value="dSAT_Sample stats and margin of error_1+2a">dSAT_Sample stats and margin of error_1+2a</option>
+            <option value="dSAT_Systems of Linear Equations_3a">dSAT_Systems of Linear Equations_3a</option>
+            <option value="dSAT_Systems of Linear Equations_2b">dSAT_Systems of Linear Equations_2b</option>
+            <option value="dSAT_Distributions_1a">dSAT_Distributions_1a</option>
+            <option value="dSAT_Distributions_2a">dSAT_Distributions_2a</option>
+            <option value="dSAT_Distributions_3a">dSAT_Distributions_3a</option>
+            <option value="dSAT_Distributions_1b">dSAT_Distributions_1b</option>
+            <option value="dSAT_Circles_1+2a">dSAT_Circles_1+2a</option>
+            <option value="dSAT_Area and Volume_2a">dSAT_Area and Volume_2a</option>
+            <option value="dSAT_Area and Volume_1a">dSAT_Area and Volume_1a</option>
+            <option value="dSAT_Area and Volume_3a">dSAT_Area and Volume_3a</option>
+            <option value="dSAT_Circles_3a">dSAT_Circles_3a</option>
+            <option value="dSAT_Equivalent Expressions_3a">dSAT_Equivalent Expressions_3a</option>
+            <option value="dSAT_Equivalent Expressions_2a">dSAT_Equivalent Expressions_2a</option>
+            <option value="dSAT_Equivalent Expressions_2b">dSAT_Equivalent Expressions_2b</option>
+            <option value="dSAT_Equivalent Expressions_1b">dSAT_Equivalent Expressions_1b</option>
+            <option value="dSAT_Equivalent Expressions_1a">dSAT_Equivalent Expressions_1a</option>
+            <option value="dSAT_Linear eq two variables_1a">dSAT_Linear eq two variables_1a</option>
+            <option value="dSAT_Linear eq two variables_1b">dSAT_Linear eq two variables_1b</option>
+            <option value="dSAT_Linear eq two variables_1c">dSAT_Linear eq two variables_1c</option>
+            <option value="dSAT_Linear eq two variables_2a">dSAT_Linear eq two variables_2a</option>
+            <option value="dSAT_Equivalent Expressions_3b">dSAT_Equivalent Expressions_3b</option>
+            <option value="dSAT_Linear Equations One Variable_2a">dSAT_Linear Equations One Variable_2a</option>
+            <option value="dSAT_Linear Equations One Variable_3a">dSAT_Linear Equations One Variable_3a</option>
+            <option value="dSAT_Linear Equations One Variable_1a">dSAT_Linear Equations One Variable_1a</option>
+            <option value="dSAT_Linear Equations One Variable_1b">dSAT_Linear Equations One Variable_1b</option>
+            <option value="dSAT_Linear eq two variables_3a">dSAT_Linear eq two variables_3a</option>
+            <option value="dSAT_Linear Functions_2b">dSAT_Linear Functions_2b</option>
+            <option value="dSAT_Linear Functions_3a">dSAT_Linear Functions_3a</option>
+            <option value="dSAT_Linear Functions_2a">dSAT_Linear Functions_2a</option>
+            <option value="dSAT_Linear Functions_1b">dSAT_Linear Functions_1b</option>
+            <option value="dSAT_Linear Functions_1a">dSAT_Linear Functions_1a</option>
+            <option value="dSAT_Lines angles and triangles_1b">dSAT_Lines angles and triangles_1b</option>
+            <option value="dSAT_Linear Inequalities_3a">dSAT_Linear Inequalities_3a</option>
+            <option value="dSAT_Linear Inequalities_2a">dSAT_Linear Inequalities_2a</option>
+            <option value="dSAT_Lines angles and triangles_1a">dSAT_Lines angles and triangles_1a</option>
+            <option value="dSAT_Linear Inequalities_1a">dSAT_Linear Inequalities_1a</option>
+            <option value="dSAT_Models and Scatterplots_1b">dSAT_Models and Scatterplots_1b</option>
+            <option value="dSAT_Lines angles and triangles_3a">dSAT_Lines angles and triangles_3a</option>
+            <option value="dSAT_Models and Scatterplots_1a">dSAT_Models and Scatterplots_1a</option>
+            <option value="dSAT_Lines angles and triangles_2a">dSAT_Lines angles and triangles_2a</option>
+        </select>
+      </div>
+
+      <!-- DSAT Reading Quiz options -->
+      <div id="dsatQuizReadingDropdown" style="display:block">
+        <label for="DSATreadingQuizzes">Choose Quiz:</label><br>
+        <select id="DSATreadingQuizzes">
+            <option value="dSAT_Boundaries_3a">dSAT_Boundaries_3a</option>
+            <option value="dSAT_Inferences_2a">dSAT_Inferences_2a</option>
+            <option value="dSAT_Inferences_1a">dSAT_Inferences_1a</option>
+            <option value="dSAT_Inferences_1b">dSAT_Inferences_1b</option>
+            <option value="dSAT_Inferences_2b">dSAT_Inferences_2b</option>
+            <option value="dSAT_Inferences_3a">dSAT_Inferences_3a</option>
+            <option value="dSAT_Rhetorical Synthesis_1a">dSAT_Rhetorical Synthesis_1a</option>
+            <option value="dSAT_Inferences_3b">dSAT_Inferences_3b</option>
+            <option value="dSAT_Rhetorical Synthesis_1b">dSAT_Rhetorical Synthesis_1b</option>
+            <option value="dSAT_Rhetorical Synthesis_2c">dSAT_Rhetorical Synthesis_2c</option>
+            <option value="dSAT_Rhetorical Synthesis_2b">dSAT_Rhetorical Synthesis_2b</option>
+            <option value="dSAT_Rhetorical Synthesis_3a">dSAT_Rhetorical Synthesis_3a</option>
+            <option value="dSAT_Rhetorical Synthesis_2a">dSAT_Rhetorical Synthesis_2a</option>
+            <option value="dSAT_Boundaries_1a">dSAT_Boundaries_1a</option>
+            <option value="dSAT_Boundaries_2a">dSAT_Boundaries_2a</option>
+            <option value="dSAT_Boundaries_1c">dSAT_Boundaries_1c</option>
+            <option value="dSAT_Boundaries_1b">dSAT_Boundaries_1b</option>
+            <option value="dSAT_Boundaries_3b">dSAT_Boundaries_3b</option>
+            <option value="dSAT_Central Ideas_1a">dSAT_Central Ideas_1a</option>
+            <option value="dSAT_Central Ideas_1b">dSAT_Central Ideas_1b</option>
+            <option value="dSAT_Boundaries_2b">dSAT_Boundaries_2b</option>
+            <option value="dSAT_Central Ideas_3a">dSAT_Central Ideas_3a</option>
+            <option value="dSAT_Central Ideas_2b">dSAT_Central Ideas_2b</option>
+            <option value="dSAT_Central Ideas_3b">dSAT_Central Ideas_3b</option>
+            <option value="dSAT_Command of Evidence_1a">dSAT_Command of Evidence_1a</option>
+            <option value="dSAT_Central Ideas_2a">dSAT_Central Ideas_2a</option>
+            <option value="dSAT_Command of Evidence_1c">dSAT_Command of Evidence_1c</option>
+            <option value="dSAT_Command of Evidence_2a">dSAT_Command of Evidence_2a</option>
+            <option value="dSAT_Command of Evidence_2b">dSAT_Command of Evidence_2b</option>
+            <option value="dSAT_Command of Evidence_2c">dSAT_Command of Evidence_2c</option>
+            <option value="dSAT_Command of Evidence_1b">dSAT_Command of Evidence_1b</option>
+            <option value="dSAT_Command of Evidence_3b">dSAT_Command of Evidence_3b</option>
+            <option value="dSAT_Command of Evidence_3a">dSAT_Command of Evidence_3a</option>
+            <option value="dSAT_Command of Evidence_3c">dSAT_Command of Evidence_3c</option>
+            <option value="dSAT_Cross Text Connections_1a">dSAT_Cross Text Connections_1a</option>
+            <option value="dSAT_Command of Evidence_2d">dSAT_Command of Evidence_2d</option>
+            <option value="dSAT_Cross Text Connections_3b">dSAT_Cross Text Connections_3b</option>
+            <option value="dSAT_Cross Text Connections_2a">dSAT_Cross Text Connections_2a</option>
+            <option value="dSAT_Cross Text Connections_3a">dSAT_Cross Text Connections_3a</option>
+            <option value="dSAT_Form Structure and Sense_1a">dSAT_Form Structure and Sense_1a</option>
+            <option value="dSAT_Cross Text Connections_1b">dSAT_Cross Text Connections_1b</option>
+            <option value="dSAT_Form Structure and Sense_1b">dSAT_Form Structure and Sense_1b</option>
+            <option value="dSAT_Form Structure and Sense_2b">dSAT_Form Structure and Sense_2b</option>
+            <option value="dSAT_Form Structure and Sense_2a">dSAT_Form Structure and Sense_2a</option>
+            <option value="dSAT_Form Structure and Sense_1d">dSAT_Form Structure and Sense_1d</option>
+            <option value="dSAT_Form Structure and Sense_1c">dSAT_Form Structure and Sense_1c</option>
+            <option value="dSAT_Form Structure and Sense_3b">dSAT_Form Structure and Sense_3b</option>
+            <option value="dSAT_Form Structure and Sense_3a">dSAT_Form Structure and Sense_3a</option>
+            <option value="dSAT_Rhetorical Synthesis_3b">dSAT_Rhetorical Synthesis_3b</option>
+            <option value="dSAT_Text Structure and Purpose_1b">dSAT_Text Structure and Purpose_1b</option>
+            <option value="dSAT_Text Structure and Purpose_2b">dSAT_Text Structure and Purpose_2b</option>
+            <option value="dSAT_Text Structure and Purpose_1a">dSAT_Text Structure and Purpose_1a</option>
+            <option value="dSAT_Text Structure and Purpose_2a">dSAT_Text Structure and Purpose_2a</option>
+            <option value="dSAT_Transitions_1a">dSAT_Transitions_1a</option>
+            <option value="dSAT_Transitions_2a">dSAT_Transitions_2a</option>
+            <option value="dSAT_Transitions_1b">dSAT_Transitions_1b</option>
+            <option value="dSAT_Transitions_1c">dSAT_Transitions_1c</option>
+            <option value="dSAT_Transitions_2b">dSAT_Transitions_2b</option>
+            <option value="dSAT_Text Structure and Purpose_3a">dSAT_Text Structure and Purpose_3a</option>
+            <option value="dSAT_Transitions_3b">dSAT_Transitions_3b</option>
+            <option value="dSAT_Words in Context_1b">dSAT_Words in Context_1b</option>
+            <option value="dSAT_Words in Context_1a">dSAT_Words in Context_1a</option>
+            <option value="dSAT_Transitions_3a">dSAT_Transitions_3a</option>
+            <option value="dSAT_Words in Context_1d">dSAT_Words in Context_1d</option>
+            <option value="dSAT_Words in Context_2a">dSAT_Words in Context_2a</option>
+            <option value="dSAT_Words in Context_3a">dSAT_Words in Context_3a</option>
+            <option value="dSAT_Words in Context_1c">dSAT_Words in Context_1c</option>
+        </select>
+      </div>
+
+      <div id="dsatQuizFor" style="display:block">
+        <label for="dsatQuizFor">Who For?</label><br>
+        <select id="dsatQuizForSelect">
+          <option value="">No Note</option>
+          <option value="For Edward">For Edward</option>
+          <option value="For Eli">For Eli</option>
+          <option value="For Ben">For Ben</option>
+          <option value="For Kyra">For Kyra</option>
+          <option value="For Kieran">For Kieran</option>
+          <option value="For Patrick">For Patrick</option>
+        </select>
+      </div>
+
+      <div id="dsatQuizTextButton">
+        <label for="DSATquizDate">Due Date:</label><br>
+        <input type="date" id="DSATquizDate" /><br>
+        <input type="button" onclick="submitAGORADSATquiz()" value="Submit" />
+      </div>
+    </div>
+
+    <div><br><p id="hwStatus"></p></div>
+
+    <script>
+      var quizType = "Reading";
+
+      function submitAGORADSATquiz() {
+        let quiz;
+        if (quizType == "Reading") {
+          quiz = document.getElementById("DSATreadingQuizzes").value;
+        } else {
+          quiz = document.getElementById("DSATmathQuizzes").value;
+        }
+        let forWhom = document.getElementById("dsatQuizForSelect").value;
+        let date = document.getElementById("DSATquizDate").value;
+        document.getElementById("hwStatus").innerHTML = "processing...";
+        google.script.run
+          .withSuccessHandler(function(){
+            document.getElementById("hwStatus").innerHTML = "done!";
+            google.script.host.close();
+          })
+          .createAGORAQuiz("DSAT", quizType, quiz, date, forWhom);
+      }
+
+      function submitAGORAACT() {
+        let section;
+        if (document.getElementById("ACTenglish").checked) section = "english";
+        else if (document.getElementById("ACTmath").checked) section = "math";
+        else if (document.getElementById("ACTreading").checked) section = "reading";
+        else if (document.getElementById("ACTscience").checked) section = "science";
+        else section = "pt";
+
+        let options = {
+          timed: document.getElementById("ACTtimed").checked,
+          form: document.getElementById("ACTtest").value,
+          work: document.getElementById("ACTwork").value,
+          date: document.getElementById("ACTdate").value,
+          notes: document.getElementById("ACTnotes").checked,
+          forWhom: document.getElementById("actForSelect").value,
+          section: section
+        };
+        document.getElementById("hwStatus").innerHTML = "processing...";
+        google.script.run
+          .withSuccessHandler(function(){
+            document.getElementById("hwStatus").innerHTML = "done!";
+            google.script.host.close();
+          })
+          .createAGORAHW("ACT", options);
+      }
+
+      function submitAGORASAT() {
+        let section;
+        if (document.getElementById("SATreading").checked) section = "reading";
+        else if (document.getElementById("SATwriting").checked) section = "writing";
+        else if (document.getElementById("SATnocalc").checked) section = "nocalc";
+        else if (document.getElementById("SATcalc").checked) section = "calc";
+        else section = "math";
+
+        let options = {
+          timed: document.getElementById("SATtimed").checked,
+          form: document.getElementById("SATtest").value,
+          work: document.getElementById("SATwork").value,
+          date: document.getElementById("SATdate").value,
+          notes: document.getElementById("SATnotes").checked,
+          forWhom: document.getElementById("satForSelect").value,
+          section: section
+        };
+        document.getElementById("hwStatus").innerHTML = "processing...";
+        google.script.run
+          .withSuccessHandler(function(){
+            document.getElementById("hwStatus").innerHTML = "done!";
+            google.script.host.close();
+          })
+          .createAGORAHW("SAT", options);
+      }
+
+      function submitAGORADSAT() {
+        let section;
+        if (document.getElementById("DSATreading1").checked) section = "reading1";
+        else if (document.getElementById("DSATreading2").checked) section = "reading2";
+        else if (document.getElementById("DSATmath1").checked) section = "math1";
+        else section = "math2";
+
+        let options = {
+          timed: document.getElementById("DSATtimed").checked,
+          form: document.getElementById("DSATtest").value,
+          work: document.getElementById("DSATwork").value,
+          date: document.getElementById("DSATdate").value,
+          notes: document.getElementById("DSATnotes").checked,
+          forWhom: document.getElementById("dsatForSelect").value,
+          section: section
+        };
+        document.getElementById("hwStatus").innerHTML = "processing...";
+        google.script.run
+          .withSuccessHandler(function(){
+            document.getElementById("hwStatus").innerHTML = "done!";
+            google.script.host.close();
+          })
+          .createAGORAHW("DSAT", options);
+      }
+
+      function customizeHW(type) {
+        document.getElementById("actText").style.display      = (type==="ACT"?"block":"none");
+        document.getElementById("satText").style.display      = (type==="SAT"?"block":"none");
+        document.getElementById("dsatText").style.display     = (type==="DSAT"?"block":"none");
+        document.getElementById("dsatQuizText").style.display = (type==="DSATquiz"?"block":"none");
+      }
+
+      function customizeDSATquiz(type) {
+        quizType = type;
+        document.getElementById("dsatQuizMathDropdown").style.display    = (type==="Math"?"block":"none");
+        document.getElementById("dsatQuizReadingDropdown").style.display = (type==="Reading"?"block":"none");
+      }
+    </script>
+  </body>
+</html>
