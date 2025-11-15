@@ -13,7 +13,12 @@ import (
 )
 
 func GenerateSignedURL(w http.ResponseWriter, r *http.Request) {
-	bucketName := "homework-assignments"
+	// NEW: allow optional ?bucket=... with default to "homework-assignments"
+	bucketName := r.URL.Query().Get("bucket")
+	if bucketName == "" {
+		bucketName = "homework-assignments"
+	}
+
 	objectName := r.URL.Query().Get("file")
 	if objectName == "" {
 		http.Error(w, "Missing 'file' query parameter", http.StatusBadRequest)
@@ -43,7 +48,7 @@ func GenerateSignedURL(w http.ResponseWriter, r *http.Request) {
 
 	url, err := storage.SignedURL(bucketName, objectName, &storage.SignedURLOptions{
 		Method:         "GET",
-		Expires:        time.Now().AddDate(0, 4, 0), //4 months
+		Expires:        time.Now().AddDate(0, 4, 0), // 4 months
 		GoogleAccessID: googleAccessID,
 		PrivateKey:     privateKey,
 	})

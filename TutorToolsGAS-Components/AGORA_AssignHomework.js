@@ -23,101 +23,11 @@ function showAGORAAssignSidebar() {
     .setTitle('AGORA Assign Homework');
   SpreadsheetApp.getUi().showSidebar(html);
 }
-
-/**
- * Creates a homework assignment in Classroom using GCS signed URLs for the PDF.
- */
-function createAGORAHW(testType, options) {
-  const PREFIX = agoraDescriptionPrefix;
-  const VIDEOS = agoraTimingVideos;
-  const SIGNER = 'https://us-central1-lee-tutoring-webapp.cloudfunctions.net/GenerateSignedURL';
-  
-  // unpack
-  let { section, form: formId, work, date: dateStr, timed, notes, forWhom } = options;
-  let ds = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('data');
-  let classId = ds.getRange('A1').getValue();
-  let studentFolderId = ds.getRange('A3').getValue();
-  let dueDate = parseAGORADate(dateStr);
-  
-  // build description
-  let descriptionText = PREFIX;
-  if (timed) {
-    if (testType === 'DSAT') {
-      descriptionText += "This assignment should be timed. For math, give yourself 43 minutes … reading, 39 minutes …\n\n";
-    } else {
-      descriptionText += "This assignment should be timed. Please use the attached YouTube proctor …\n\n";
-    }
-  }
-  if (notes) {
-    descriptionText += "Use your notes! Circle/mark any problems that you aren't 100% sure about …\n\n";
-  }
-  descriptionText += (testType==='DSAT' ? 'Complete problem(s) ' :
-                      (section==='reading'||section==='science' ? 'Complete passage(s) ' : 'Complete problem(s) '))
-                  + work + " to the best of your ability.\n\n"
-                  + "When you’re done, enter your answers into the form attached below and submit before we meet!";
-  
-  // copy & move the Answer-Sheet form
-  let hwForm = makeAGORAForm(testType, formId, section, work);
-  DriveApp.getFileById(hwForm.getId())
-         .moveTo( DriveApp.getFolderById(studentFolderId) );
-  hwForm.setRequireLogin(false);
-  
-  // title
-  let title = (notes ? 'Open Notebook ' : '')
-            + capitalizeFirstLetter(section)
-            + ' Homework Due ' + dueDate.month + '.' + dueDate.day
-            + ' (' + forWhom + ')';
-  
-  // fetch signed URL for the PDF
-  var pdfName = formId.toLowerCase() + '_' + section.toLowerCase() + '.pdf';
-  let resp = UrlFetchApp.fetch(`${SIGNER}?file=${encodeURIComponent(pdfName)}`);
-  let signedUrl = JSON.parse(resp.getContentText()).url;
-  
-  // assemble the Classroom payload
-  let materials = [
-    { link: { url: signedUrl,       title: 'Homework PDF'    } },
-    { link: { url: hwForm.getPublishedUrl(), title: 'Answer Sheet' } }
-  ];
-  if (timed && testType!=='DSAT') {
-    let vids = VIDEOS[testType + '_' + section];
-    materials.push(
-      { link:{url:vids[0], title:section+' Standard Time Proctor'} },
-      { link:{url:vids[1], title:section+' Extended Time Proctor'} }
-    );
-    if (testType==='SAT' && section==='math') {
-      materials.push(
-        { link:{url:vids[2], title:'Calculator Standard Time Proctor'} },
-        { link:{url:vids[3], title:'Calculator Extended Time Proctor'} }
-      );
-    }
-  }
-  
-  let courseWork = {
-    title, description: descriptionText,
-    materials,
-    dueDate, 
-    dueTime: { hours:23, minutes:59, seconds:59, nanos:0 },
-    maxPoints: 100,
-    workType: 'ASSIGNMENT',
-    state: 'PUBLISHED'
-  };
-  
-  // call Classroom
-  let cw = Classroom.Courses.CourseWork.create(courseWork, classId);
-  
-  // attach the magic “ignore this” marker so our form-submit handler knows what to turn in
-  hwForm.addSectionHeaderItem()
-        .setTitle('Ignore this stuff!')
-        .setHelpText([classId, cw.id, getAGORAStudentId(classId)].join(','));
-}
-
-
-
 /**
  * Creates a homework assignment in Classroom, using your signed-URL endpoint for the PDF.
  */
 function createAGORAHW(testType, options) {
-  var descriptionText = agoraDescriptionPrefix;
+  var descriptionText = options.form.toLowerCase() + '_' + options.section.toLowerCase() + "\n\n"+ agoraDescriptionPrefix;
   var section     = options.section.toLowerCase();;
   var formId      = options.form.toLowerCase();;
   var work        = options.work;
@@ -205,8 +115,123 @@ function createAGORAHW(testType, options) {
   var response = Classroom.Courses.CourseWork.create(courseWork, classId);
   hwForm.addSectionHeaderItem()
     .setTitle('Ignore this stuff!')
-    .setHelpText([classId, response.id, getAGORAStudentId(classId)].join(','));
+    .setHelpText("1,"+studentFolderId+ "," + SpreadsheetApp.getActiveSpreadsheet().getId());
+    //.setHelpText([1,studentFolderId,response.id,SpreadsheetApp.getActiveSpreadsheet().getId(), getAGORAStudentId(classId)].join(','));
+  hwForm.setPublished(true);
 }
+
+/**
+ * Handles PT (Practice Test) actions from the sidebar.
+ * payload = { mode: "SAT"|"ACT", date: "YYYY-MM-DD", form?: "25mc1"..."25mc5" }
+ */
+function createAGORAPT(payload) {
+  var mode    = payload.mode;         // "SAT" or "ACT"
+  var dateStr = payload.date || "";
+  var testKey = payload.form || "";   // e.g. "25mc3" when ACT
+
+  var ss        = SpreadsheetApp.getActiveSpreadsheet();
+  var dataSheet = ss.getSheetByName('data');
+  if (!dataSheet) throw new Error('Missing "data" sheet');
+
+  var classId = dataSheet.getRange('A1').getValue();
+  if (!classId) throw new Error('Missing classId in data!A1');
+
+  var dueDate = dateStr ? parseAGORADate(dateStr) : null;
+
+  // -----------------------------
+  // PT-SAT = Announcement only
+  // -----------------------------
+  if (mode === 'SAT') {
+    var text = 'Take your SAT practice test! >:L';
+    if (dateStr) {
+      text += '\n\nDue: ' + dateStr;
+    }
+
+    var announcement = {
+      text:  text,
+      state: 'PUBLISHED'
+    };
+
+    Classroom.Courses.Announcements.create(announcement, classId);
+    return;
+  }
+
+  // -----------------------------
+  // PT-ACT = Special ACT practice assignment
+  // -----------------------------
+  if (mode !== 'ACT') {
+    throw new Error('Unsupported PT mode: ' + mode);
+  }
+
+  if (!testKey) {
+    throw new Error('Missing ACT practice test selection (25mc1–25mc5).');
+  }
+
+  var SIGNER_ENDPOINT = 'https://us-central1-lee-tutoring-webapp.cloudfunctions.net/GenerateSignedURL';
+  var PRACTICE_BUCKET = 'practice-act';
+
+  // Helper to get signed URL from the practice-act bucket
+  function getPracticeSignedUrl(fileName) {
+    var url = SIGNER_ENDPOINT
+            + '?bucket=' + encodeURIComponent(PRACTICE_BUCKET)
+            + '&file='   + encodeURIComponent(fileName);
+    var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    if (resp.getResponseCode() !== 200) {
+      throw new Error('Couldn’t fetch signed URL for ' + fileName + ': ' + resp.getContentText());
+    }
+    var obj = JSON.parse(resp.getContentText());
+    if (!obj.url) {
+      throw new Error('Signed URL response missing "url" for ' + fileName);
+    }
+    return obj.url;
+  }
+
+  // Files in the practice-act bucket
+  var testPdfName   = testKey + '.pdf'; // "25mc3.pdf"
+  var answerPdfName = 'ACT Answer Sheet 2025.pdf';
+  var instrPdfName  = 'ACT Instructions (Please Read Thoroughly!).pdf';
+
+  var testUrl   = getPracticeSignedUrl(testPdfName);
+  var answerUrl = getPracticeSignedUrl(answerPdfName);
+  var instrUrl  = getPracticeSignedUrl(instrPdfName);
+
+  // Body text with clearly labeled links
+  var description =
+    'Please read the file named "ACT Instructions" thoroughly and ASAP to find the automatic proctor for this test as well as relevant information. Edward will handle timing for you via that Youtube video. Please let us know if you have any questions!\n\n' +
+
+    'Practice Test:\n' + testUrl + '\n\n' +
+    'Instructions:\n' + instrUrl + '\n\n' +
+    'Answer Sheet:\n' + answerUrl + '\n\n' +
+
+    'Best of luck!';
+
+  var title = 'ACT Practice Test';
+
+  // Attach the same 3 PDFs as Classroom materials
+  var materials = [
+    { link: { url: instrUrl,  title: instrPdfName } },
+    { link: { url: answerUrl, title: answerPdfName } },
+    { link: { url: testUrl,   title: testPdfName } }
+  ];
+
+  var courseWork = {
+    title:       title,
+    description: description,
+    materials:   materials,
+    dueDate:     dueDate || undefined,
+    dueTime:     dueDate ? { hours:23, minutes:59, seconds:59, nanos:0 } : undefined,
+    maxPoints:   0,              // practice, no points
+    workType:    'ASSIGNMENT',
+    state:       'PUBLISHED'
+  };
+
+  var cw = Classroom.Courses.CourseWork.create(courseWork, classId);
+
+  Logger.log('Created PT-ACT coursework id=%s with files: %s, %s, %s',
+             cw.id, instrPdfName, answerPdfName, testPdfName);
+}
+
+
 
 
 /**
@@ -320,6 +345,17 @@ function makeAGORAForm(testType, formId, subject, problems) {
     }
   }
 
+  //The below code handles homework submission automation for students.
+
+  var formId = form.getId();
+
+  var triggerFunction = 'handleAGORAFormSubmit';
+
+  ScriptApp.newTrigger(triggerFunction)
+  .forForm(formId)
+  .onFormSubmit()
+  .create();
+
   return form;
 }
 
@@ -327,12 +363,32 @@ function makeAGORAForm(testType, formId, subject, problems) {
  * Handles form submissions to auto-turn in via Classroom
  */
 function handleAGORAFormSubmit(e) {
-  var helpText = e.source.getItems().pop().getHelpText();
-  var parts = helpText.split(',');
-  var courseId = parts[0], workId = parts[1], userId = parts[2];
-  var subs = Classroom.Courses.CourseWork.StudentSubmissions;
-  var listResp = subs.list(courseId, workId, { userId: userId });
-  subs.turnIn({}, courseId, workId, listResp.studentSubmissions[0].id);
+    var text = e.source.getItems()[e.source.getItems().length-1].getHelpText();
+    var checker = text.substring(0,text.indexOf(","));
+    Logger.log(text);
+    if(checker!=1){
+      Logger.log("Not a candidate for auto submission; abandoning submission process.");
+      Logger.log(checker);
+      return;
+    }
+    Logger.log("Candidate for Auto Form Submit! Processing now...")
+    text = text.substring(text.indexOf(",")+1);
+    var retrievedFolderId = text.substring(0,text.indexOf(","));
+    text = text.substring(text.indexOf(",")+1);
+    var retrievedSpreadsheetID = text;
+
+    Logger.log(retrievedFolderId);
+    Logger.log(retrievedSpreadsheetID);
+  
+    var retSheet = SpreadsheetApp.openById(retrievedSpreadsheetID);
+    var name = retSheet.getSheetByName("data").getRange("A2").getValue();
+    Logger.log(name);
+
+
+    // first parameter is form id, second is student sheet, third indicates that this is an auto-submission
+    loadHomeworkAnswers2(e.source.getId(),retrievedSpreadsheetID,2);
+
+  
 }
 
 /**
